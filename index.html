@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>안개 도시의 그림자 · 플레이어 조서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0c10;
+  --char:#12161c;
+  --char2:#181d25;
+  --raise:#1f2630;
+  --line:#2b333e;
+  --line2:#39424e;
+  --silver:#c9cdd4;
+  --text:#e9e3d6;
+  --muted:#8f897c;
+  --muted2:#736e63;
+  --gold:#c6a15c;
+  --gold-lit:#e2c485;
+  --wine:#7c1f2b;
+  --wine-lit:#a8323f;
+  --paper:#e8dcc4;
+  --paper-line:#cbb996;
+  --inkp:#241f18;
+  --ok:#7bbf8f;
+  --warn:#d8a24a;
+  --bad:#c96a6a;
+  --r:16px;
+  --shadow:0 22px 60px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  min-height:100dvh;
+  color:var(--text);
+  font-family:"Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+  font-size:16px;line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(120% 60% at 50% -8%, rgba(168,50,63,.10), transparent 60%),
+    radial-gradient(90% 50% at 90% 4%, rgba(198,161,92,.07), transparent 55%),
+    radial-gradient(80% 60% at 8% 100%, rgba(120,120,140,.06), transparent 60%),
+    linear-gradient(180deg,#090b0f 0%,#0d1015 45%,#0a0c11 100%);
+  background-attachment:fixed;
+}
+/* drifting fog band */
+.fog{position:fixed;inset:0 0 auto 0;height:190px;pointer-events:none;z-index:0;opacity:.5;overflow:hidden}
+.fog:before,.fog:after{
+  content:"";position:absolute;top:-40px;left:-30%;width:160%;height:220px;
+  background:radial-gradient(60% 80% at 50% 50%,rgba(180,186,196,.14),transparent 70%);
+  filter:blur(14px);animation:drift 34s linear infinite;
+}
+.fog:after{top:10px;animation-duration:52s;animation-direction:reverse;opacity:.7}
+@keyframes drift{from{transform:translateX(-8%)}to{transform:translateX(8%)}}
+
+.shell{position:relative;z-index:1;width:min(680px,100%);margin:0 auto;padding:0 14px 130px}
+
+/* ---------- tab strip ---------- */
+.tabs{position:sticky;top:0;z-index:20;margin:0 -14px;padding:10px 14px 8px;
+  background:linear-gradient(180deg,rgba(10,12,16,.96),rgba(10,12,16,.72) 78%,transparent);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.tabrow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.tabrow::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;display:flex;align-items:center;gap:6px;border:1px solid var(--line);
+  background:var(--char);color:var(--muted);border-radius:999px;padding:7px 13px;font-size:.82rem;
+  cursor:pointer;white-space:nowrap;transition:.16s ease;font-family:inherit}
+.tab .n{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:.98rem;color:var(--muted2);letter-spacing:.02em}
+.tab[aria-current="true"]{border-color:var(--gold);color:var(--gold-lit);background:linear-gradient(180deg,#20232a,#191c22)}
+.tab[aria-current="true"] .n{color:var(--gold)}
+.tab.done{color:#b9b2a3;border-color:var(--line2)}
+.tab.done .n{color:var(--gold)}
+.tab:disabled{opacity:.42;cursor:default}
+.progress{height:2px;background:var(--line);border-radius:2px;margin-top:8px;overflow:hidden}
+.hidden{display:none!important}
+.progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--wine-lit),var(--gold));transition:width .35s ease}
+
+/* ---------- steps ---------- */
+.step{display:none;animation:rise .32s ease both}
+.step.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.eyebrow{font-family:"Cormorant Garamond",serif;font-style:italic;letter-spacing:.16em;
+  color:var(--gold);font-size:.92rem;text-transform:uppercase}
+h1{font-family:"Noto Serif KR",serif;font-weight:700;line-height:1.16;margin:.3rem 0 .5rem;
+  font-size:clamp(1.9rem,7vw,2.6rem)}
+h2{font-family:"Noto Serif KR",serif;font-weight:700;margin:.2rem 0 .35rem;font-size:1.42rem}
+.lead{color:#c6bfb0;margin:0 0 18px;font-size:.98rem}
+.mini{color:var(--muted);font-size:.86rem;margin:0 0 16px}
+
+.card{border:1px solid var(--line);background:linear-gradient(160deg,rgba(24,29,37,.96),rgba(16,20,26,.97));
+  border-radius:var(--r);padding:20px;box-shadow:0 14px 40px rgba(0,0,0,.28)}
+.card + .card{margin-top:14px}
+
+/* hero (intro) */
+.hero{position:relative;overflow:hidden;padding:26px 22px 24px}
+.hero .seal-mini{position:absolute;top:16px;right:16px;width:56px;height:56px;opacity:.9}
+.blurb{color:#cbc4b5;margin:14px 0 0;font-size:.96rem;max-width:52ch}
+.cta{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+
+/* image slot */
+.imgslot{position:relative;width:100%;border:1px solid var(--line2);border-radius:14px;overflow:hidden;
+  background:
+    repeating-linear-gradient(45deg,rgba(255,255,255,.012) 0 12px,transparent 12px 24px),
+    linear-gradient(160deg,#161a21,#101319);
+  aspect-ratio:16/10;display:flex;align-items:center;justify-content:center}
+.imgslot.portrait{aspect-ratio:3/4;max-width:220px}
+.imgslot img{width:100%;height:100%;object-fit:cover;display:block}
+.imgslot .ph{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted2);text-align:center;padding:16px}
+.imgslot .ph svg{opacity:.55}
+.imgslot .ph .cap{font-family:"Cormorant Garamond",serif;font-style:italic;letter-spacing:.08em;font-size:.86rem;color:var(--muted)}
+.imgslot .ph .sub{font-size:.74rem;color:var(--muted2)}
+.imgslot .tag{position:absolute;left:10px;bottom:10px;font-size:.72rem;letter-spacing:.06em;color:var(--gold-lit);
+  background:rgba(9,11,15,.72);border:1px solid rgba(198,161,92,.35);padding:3px 9px;border-radius:999px}
+
+/* selectable option cards */
+.opts{display:grid;gap:10px;margin-top:4px}
+.opts.two{grid-template-columns:1fr}
+.opt{display:block;position:relative;border:1px solid var(--line);background:var(--char2);
+  border-radius:14px;padding:15px 15px 14px;cursor:pointer;transition:.15s ease}
+.opt:hover{border-color:var(--line2);transform:translateY(-1px)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt .k{font-family:"Cormorant Garamond",serif;font-size:.82rem;letter-spacing:.14em;color:var(--muted2)}
+.opt .t{font-weight:700;font-size:1.05rem;margin:3px 0 3px;color:var(--text);font-family:"Noto Serif KR",serif}
+.opt .d{color:var(--muted);font-size:.86rem;line-height:1.5}
+.opt.checked{border-color:var(--gold);background:linear-gradient(160deg,#20242b,#191c22);
+  box-shadow:inset 0 0 0 1px rgba(198,161,92,.22)}
+.opt.checked .k{color:var(--gold)}
+.opt .mark{position:absolute;top:13px;right:14px;width:18px;height:18px;border-radius:50%;
+  border:1.5px solid var(--line2);transition:.15s}
+.opt.checked .mark{border-color:var(--gold);background:radial-gradient(circle,var(--gold) 0 42%,transparent 46%)}
+
+/* chip grid (roles / styles compact) */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.chip{border:1px solid var(--line);background:var(--char2);color:#d3ccbe;border-radius:999px;
+  padding:9px 15px;cursor:pointer;font-size:.9rem;font-family:inherit;transition:.14s}
+.chip:hover{border-color:var(--line2)}
+.chip.checked{border-color:var(--gold);color:var(--gold-lit);background:#20242b}
+.chip input{position:absolute;opacity:0;width:0;height:0}
+
+/* fields */
+.field{margin-top:14px}
+.field:first-child{margin-top:0}
+label.lbl{display:block;color:#c3bcae;font-size:.82rem;margin-bottom:7px;letter-spacing:.01em}
+.hint{color:var(--muted2);font-size:.76rem;margin-top:6px}
+input[type=text],select,textarea{
+  width:100%;border:1px solid var(--line2);background:#12161c;color:var(--text);
+  border-radius:11px;padding:13px 13px;font:inherit;font-size:1rem;outline:none;transition:.14s}
+input::placeholder,textarea::placeholder{color:#5f5a50}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(198,161,92,.14)}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:36px}
+textarea{min-height:78px;resize:vertical;line-height:1.6}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.grid2 .field{margin-top:0}
+@media(max-width:440px){.grid2{grid-template-columns:1fr}}
+
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted2);font-size:.78rem;
+  letter-spacing:.1em;margin:16px 0;font-family:"Cormorant Garamond",serif;font-style:italic}
+.divider:before,.divider:after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* buttons */
+.btn{appearance:none;border:0;border-radius:12px;padding:15px 18px;font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:1rem;transition:.15s ease;letter-spacing:.01em;width:100%}
+.btn-primary{background:linear-gradient(135deg,var(--wine-lit),var(--wine));color:#fdf1e6;
+  box-shadow:0 10px 26px rgba(124,31,43,.34)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 32px rgba(124,31,43,.42)}
+.btn-gold{background:linear-gradient(135deg,var(--gold-lit),var(--gold));color:#2a2113}
+.btn-gold:hover{transform:translateY(-1px)}
+.btn-ghost{background:var(--raise);color:var(--text);border:1px solid var(--line2)}
+.btn-ghost:hover{border-color:var(--gold)}
+.btn:focus-visible,.tab:focus-visible,.opt:focus-within,.chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* sticky bottom nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:30;
+  padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(0deg,rgba(9,11,15,.98),rgba(9,11,15,.86) 70%,transparent);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.nav-in{width:min(680px,100%);margin:0 auto;display:flex;gap:10px}
+.nav .btn{width:auto;flex:1}
+.nav .btn.back{flex:0 0 34%}
+
+/* ---------- final dossier ---------- */
+.dossier{position:relative;background:
+    radial-gradient(120% 90% at 80% -10%,rgba(0,0,0,.05),transparent 50%),
+    linear-gradient(180deg,#ece0c9,#e3d6bd);
+  color:var(--inkp);border-radius:14px;padding:22px 20px 26px;
+  box-shadow:0 20px 50px rgba(0,0,0,.4), inset 0 0 0 1px rgba(120,95,60,.18);
+  overflow:hidden}
+.dossier:before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(90,70,45,.05) 0 27px,transparent 27px 28px);opacity:.5}
+.dossier .filehead{display:flex;justify-content:space-between;align-items:flex-start;
+  border-bottom:1.5px solid var(--paper-line);padding-bottom:10px;margin-bottom:14px;position:relative}
+.dossier .filehead .lt{font-family:"Cormorant Garamond",serif;font-style:italic;letter-spacing:.12em;
+  color:#8a6d3f;font-size:.84rem}
+.dossier .filehead .rt{font-family:"Cormorant Garamond",serif;color:#6f5636;font-size:.8rem;text-align:right}
+.dossier h3{font-family:"Noto Serif KR",serif;margin:2px 0 2px;font-size:1.35rem;color:#2a2216;position:relative}
+.dossier .role-line{color:#5f4b2e;font-size:.9rem;position:relative}
+.dsummary{position:relative;margin:14px 0 4px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.dsummary dt{color:#8a6d3f;font-weight:700}
+.dsummary dd{margin:0;color:#372c1c}
+.stamp{position:absolute;right:-6px;bottom:-6px;width:118px;height:118px;transform:rotate(-8deg) scale(.2);opacity:0;
+  transition:transform .5s cubic-bezier(.2,1.4,.4,1),opacity .3s}
+.stamp.on{transform:rotate(-8deg) scale(1);opacity:1}
+
+/* user note output */
+.noteout{margin-top:14px}
+.noteout .nhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+.noteout .nhead .lab{font-family:"Cormorant Garamond",serif;font-style:italic;letter-spacing:.1em;color:var(--gold)}
+.counter{font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.counter b{color:var(--ok)}
+.counter.warn b{color:var(--warn)}
+.counter.bad b{color:var(--bad)}
+#noteText{min-height:120px;font-size:.98rem;line-height:1.72;background:#12161c}
+.noteacts{display:flex;gap:10px;margin-top:12px}
+.noteacts .btn{flex:1}
+.copied{font-size:.82rem;color:var(--ok);text-align:center;height:1.2em;margin-top:8px;opacity:0;transition:.2s}
+.copied.on{opacity:1}
+
+.foot{text-align:center;color:var(--muted2);font-size:.76rem;margin-top:26px;
+  font-family:"Cormorant Garamond",serif;letter-spacing:.06em}
+.spoiler-safe{border:1px dashed var(--line2);border-radius:12px;padding:12px 14px;color:var(--muted);
+  font-size:.82rem;margin-top:14px;background:rgba(124,31,43,.05)}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .stamp{opacity:1;transform:rotate(-8deg) scale(1)}
+}
+</style>
+</head>
+<body>
+<div class="fog" aria-hidden="true"></div>
+
+<div class="shell">
+  <!-- TAB STRIP -->
+  <nav class="tabs" aria-label="설정 단계">
+    <div class="tabrow" id="tabrow"></div>
+    <div class="progress"><i id="progressBar"></i></div>
+  </nav>
+
+  <!-- STEP 0 · 표지 -->
+  <section class="step on" data-step="0">
+    <div class="card hero">
+      <div class="seal-mini" aria-hidden="true"><!--SEAL--></div>
+      <div class="eyebrow">The Shadows of the Fog City</div>
+      <h1>플레이어 조서</h1>
+      <div class="imgslot" data-img="hero" style="margin-top:16px">
+        <div class="ph"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg><span class="cap">Fog · Gaslight · London</span><span class="sub">배경 일러스트 자리</span></div>
+        <span class="tag">배경</span>
+      </div>
+      <p class="blurb">1890년대 런던. 안개와 가스등 사이로 은발의 괴도 <b>나이트</b>가 애시크로프트 유물을 훔치고, 빈 진열대에 <b style="color:var(--wine-lit)">붉은 실링</b>을 남긴다. 스코틀랜드 야드가 그를 쫓는 밤 — 당신은 어떤 인물로 이 사건에 발을 들이는가.</p>
+      <div class="cta">
+        <button class="btn btn-primary" onclick="startBuild()">조서 작성 시작</button>
+        <button class="btn btn-gold" onclick="randomRoll()">🎲 랜덤으로 배정</button>
+      </div>
+      <div class="mini" style="margin:14px 0 0">처음이라면 <b>랜덤 배정</b>으로 바로 시작한 뒤, 마음에 드는 항목만 고쳐도 됩니다.</div>
+    </div>
+  </section>
+
+  <!-- STEP 1 · 시작설정 -->
+  <section class="step" data-step="1">
+    <div class="eyebrow">Case File · 01</div>
+    <h2>어떻게 사건에 들어설까</h2>
+    <p class="mini">선택에 따라 추천 직업과 조서 항목이 달라집니다.</p>
+    <div class="opts two" role="radiogroup" aria-label="시작설정">
+      <label class="opt" data-scn="1">
+        <input type="radio" name="scn" value="1"><span class="mark"></span>
+        <div class="k">Start 01</div>
+        <div class="t">스코틀랜드 야드 수사관</div>
+        <div class="d">괴도 나이트 사건을 맡은 경찰. 직급·경력·수사 스타일이 플레이에 바로 반영됩니다.</div>
+      </label>
+      <label class="opt" data-scn="2">
+        <input type="radio" name="scn" value="2"><span class="mark"></span>
+        <div class="k">Start 02</div>
+        <div class="t">자유 직업으로 합류</div>
+        <div class="d">경찰이 아니어도 됩니다. 사립탐정·기자·고미술 관계자·법률가·사진사 중에서 고르거나, ‘기타’로 원하는 직업을 직접 적을 수 있습니다.</div>
+      </label>
+    </div>
+  </section>
+
+  <!-- STEP 2 · 신원 -->
+  <section class="step" data-step="2">
+    <div class="eyebrow">Case File · 02</div>
+    <h2>신원</h2>
+    <p class="mini">비워두면 '미정'으로 두고 극중에서 정할 수 있습니다.</p>
+    <div class="card">
+      <div class="grid2">
+        <div class="field"><label class="lbl" for="f_name">이름</label>
+          <input id="f_name" type="text" placeholder="예: 세라 카터"></div>
+        <div class="field"><label class="lbl" for="f_gender">성별</label>
+          <select id="f_gender"><option value="">미정</option><option>여성</option><option>남성</option><option>직접 설정</option></select></div>
+      </div>
+      <div class="field"><label class="lbl" for="f_age">나이</label>
+        <input id="f_age" type="text" placeholder="예: 31세">
+        <div class="hint">추천 직업을 고르면 어울리는 나이대가 자동으로 채워집니다.</div></div>
+    </div>
+  </section>
+
+  <!-- STEP 3 · 직업 -->
+  <section class="step" data-step="3">
+    <div class="eyebrow">Case File · 03</div>
+    <h2 id="roleTitle">직업</h2>
+    <p class="mini" id="roleSub">사건에 어떤 신분으로 서 있을지 고르세요.</p>
+    <div class="imgslot portrait" data-img="portrait" style="margin:0 auto 14px">
+      <div class="ph"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg><span class="cap">Your Character</span><span class="sub">캐릭터 일러스트 자리</span></div>
+      <span class="tag">인물</span>
+    </div>
+    <div class="opts" id="roleCards" role="radiogroup" aria-label="직업"></div>
+    <div class="card hidden" id="customBox" style="margin-top:12px">
+      <div class="field"><label class="lbl" for="f_customRole">직업 / 신분 직접 입력</label>
+        <input id="f_customRole" type="text" placeholder="예: 골동품 상인 / 왕립의사 / 극단 배우"></div>
+      <div class="field"><label class="lbl" for="f_customHook">이 사건에 얽힌 계기 (한 줄)</label>
+        <input id="f_customHook" type="text" placeholder="예: 단골 손님이 유물을 도둑맞아 뒤를 캐게 됐다"></div>
+    </div>
+  </section>
+
+  <!-- STEP 4 · 스타일 -->
+  <section class="step" data-step="4">
+    <div class="eyebrow">Case File · 04</div>
+    <h2>수사 스타일</h2>
+    <p class="mini">어떤 방식으로 진실에 다가가고 싶은가요. 정답은 없습니다.</p>
+    <div class="opts" id="styleOpts" role="radiogroup" aria-label="수사 스타일"></div>
+  </section>
+
+  <!-- STEP 5 · 관계 -->
+  <section class="step" data-step="5">
+    <div class="eyebrow">Case File · 05</div>
+    <h2>계기와 관계</h2>
+    <p class="mini">한 줄씩만 정해두면 초반 전개가 훨씬 매끄럽습니다.</p>
+    <div class="card">
+      <div class="field"><label class="lbl" for="f_hook">사건에 개입한 계기</label>
+        <input id="f_hook" type="text" placeholder="예: 유물 피해자 측의 의뢰로 뛰어들었다"></div>
+      <div class="field"><label class="lbl" for="f_graves">그레이브즈 총경과의 관계</label>
+        <select id="f_graves"></select></div>
+      <div class="field"><label class="lbl" for="f_arthur">신입 순경 아서와의 관계</label>
+        <select id="f_arthur"></select></div>
+    </div>
+    <div class="spoiler-safe">이 조서는 <b>당신(수사관)</b>의 신원만 정합니다. 루시언·아서·나이트의 정체나 사건의 진실은 극중에서 당신이 단서로 직접 밝혀냅니다.</div>
+  </section>
+
+  <!-- STEP 6 · 인물 묘사 -->
+  <section class="step" data-step="6">
+    <div class="eyebrow">Case File · 06</div>
+    <h2>외형과 성격</h2>
+    <p class="mini">선택 항목입니다. 비워두면 극중 상황에 맞춰 묘사됩니다.</p>
+    <div class="card">
+      <div class="field"><label class="lbl" for="f_appearance">외형</label>
+        <input id="f_appearance" type="text" placeholder="예: 짙은 갈색 머리, 회색 트위드 정장"></div>
+      <div class="field"><label class="lbl" for="f_personality">성격 (한 줄)</label>
+        <input id="f_personality" type="text" placeholder="예: 침착하고 신중하다">
+        <div class="hint">스타일을 고르면 어울리는 성격이 자동으로 들어갑니다.</div></div>
+      <div class="field"><label class="lbl" for="f_extra">기타 설정</label>
+        <textarea id="f_extra" placeholder="가문·출신·거주지 등 덧붙이고 싶은 설정 (선택)"></textarea></div>
+    </div>
+  </section>
+
+  <!-- STEP 7 · 완성 -->
+  <section class="step" data-step="7">
+    <div class="eyebrow">Sealed · 07</div>
+    <h2>조서 완성</h2>
+    <p class="mini">아래 유저노트를 복사해 붙여넣으세요. 자유롭게 고쳐도 됩니다.</p>
+
+    <div class="dossier" id="dossier">
+      <div class="filehead">
+        <div class="lt">Scotland Yard · Case Dossier</div>
+        <div class="rt" id="d_scn">START 01</div>
+      </div>
+      <h3 id="d_name">—</h3>
+      <div class="role-line" id="d_role">—</div>
+      <dl class="dsummary" id="d_summary"></dl>
+      <div class="stamp" id="stamp" aria-hidden="true"><!--SEAL_BIG--></div>
+    </div>
+
+    <div class="card noteout" style="margin-top:14px">
+      <div class="nhead">
+        <span class="lab">User Note</span>
+        <span class="counter" id="counter">— 자</span>
+      </div>
+      <textarea id="noteText" spellcheck="false"></textarea>
+      <div class="noteacts">
+        <button class="btn btn-ghost" onclick="regenNote()">추천 문장 다시 생성</button>
+        <button class="btn btn-gold" onclick="copyNote()">유저노트 복사</button>
+      </div>
+      <div class="copied" id="copied">복사되었습니다</div>
+    </div>
+
+    <div class="foot">The night belongs to the one who leaves a red seal.</div>
+  </section>
+</div>
+
+<!-- STICKY NAV -->
+<div class="nav" id="navbar" style="display:none">
+  <div class="nav-in">
+    <button class="btn btn-ghost back" onclick="prevStep()">이전</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">다음</button>
+  </div>
+</div>
+
+<script>
+/* ===================================================================
+   이미지 슬롯 설정 — 제작자용
+   아래 URL만 채우면 해당 자리에 이미지가 자동으로 들어갑니다. (비우면 플레이스홀더)
+   예) hero: "https://raw.githubusercontent.com/crgch/.../london.png"
+=================================================================== */
+const IMG = {
+  hero: "",        // 표지 배경 (안개 낀 런던 / 괴도 나이트 실루엣)
+  portrait: ""     // 직업 단계 캐릭터 초상 자리
+};
+
+/* ---------- 밀랍 붉은 실링 SVG ---------- */
+function sealSVG(size){
+  return `<svg viewBox="0 0 120 128" width="${size}" height="${size}" aria-hidden="true">
+    <defs>
+      <radialGradient id="wax${size}" cx="38%" cy="32%" r="80%">
+        <stop offset="0%" stop-color="#c14b57"/><stop offset="42%" stop-color="#8c2431"/>
+        <stop offset="100%" stop-color="#571620"/>
+      </radialGradient>
+    </defs>
+    <path d="M60 12 C40 12 22 24 22 50 c0 10 3 18 9 28 l6 30 c1 5 8 6 10 1 l3-8 c3 6 12 6 15 0 l3 8 c2 5 9 4 10-1 l6-30 c6-10 9-18 9-28 C93 24 80 12 60 12Z"
+      fill="url(#wax${size})" stroke="#3f0f16" stroke-width="1"/>
+    <circle cx="60" cy="50" r="34" fill="none" stroke="#e7c17a" stroke-opacity=".55" stroke-width="1.4"/>
+    <circle cx="60" cy="50" r="28" fill="none" stroke="#e7c17a" stroke-opacity=".3" stroke-width="1"/>
+    <path d="M60 26 l3 7 h7 l-5.5 4.5 2 7.5 -6.5-4.5 -6.5 4.5 2-7.5 -5.5-4.5 h7Z" fill="#e7c17a" fill-opacity=".7"/>
+    <text x="60" y="70" text-anchor="middle" font-family="'Cormorant Garamond',serif" font-weight="600"
+      font-size="34" fill="#f0d59a" fill-opacity=".92" style="letter-spacing:1px">N</text>
+    <path d="M40 74 q20 8 40 0" fill="none" stroke="#e7c17a" stroke-opacity=".4" stroke-width="1.2"/>
+  </svg>`;
+}
+
+/* ===================================================================
+   데이터
+=================================================================== */
+const STYLES = [
+  {id:"analysis", k:"Logic",  t:"논리형", d:"흩어진 단서를 하나의 논리로 맞춘다. 가설을 세우고 반증하며 좁혀간다.",
+   spec:"현장 재구성·모순 검증", specShort:"현장 재구성", pers:"침착하고 신중하다", persLong:"감정보다 증거의 연결을 먼저 본다. 확신 전에는 결론을 미룬다."},
+  {id:"field", k:"Field", t:"현장형", d:"책상보다 현장에서 강하다. 발로 뛰어 흔적과 목격자를 빠르게 확보한다.",
+   spec:"추격·잠복·현장 판단", specShort:"추격과 잠복", pers:"대담하고 행동이 빠르다", persLong:"위험한 순간엔 몸이 먼저 움직인다. 장황한 이론보다 직접 확인한다."},
+  {id:"social", k:"Social", t:"사교형", d:"사람 사이의 거리와 말의 빈틈을 읽는다. 대화를 수사 도구로 쓴다.",
+   spec:"심문·사교 잠입·정보 수집", specShort:"심문과 정보 수집", pers:"붙임성 있고 눈치가 빠르다", persLong:"상대에 따라 말투와 접근을 바꾼다. 경계하기 전에 필요한 질문을 섞는다."},
+  {id:"record", k:"Records", t:"기록형", d:"기록·장부·시간표의 어긋남을 놓치지 않는다. 과거와 현재를 잇는다.",
+   spec:"기록 대조·증거 관리·문서 추적", specShort:"기록 대조", pers:"꼼꼼하고 절차를 중시한다", persLong:"사소한 누락도 그냥 넘기지 못한다. 절차를 지켜야 증거가 살아남는다고 믿는다."},
+  {id:"intuition", k:"Instinct", t:"직감형", d:"설명하기 어려운 이상징후를 먼저 잡아낸다. 느낌을 물증으로 바꾼다.",
+   spec:"미행·행동 패턴 포착", specShort:"미행", pers:"감각이 예민하고 끈질기다", persLong:"이상하다고 느낀 대상은 직접 확인해야 직성이 풀린다."}
+];
+
+const ROLES = {
+  "1":[ // 야드 (tag=선택UI 계급설명, hook=축약 계기)
+    {name:"순경", tag:"말단 신입 계급", age:[24,30], hook:"괴도 나이트 담당",
+     desc:"야드 최하급. 아서와 같은 계급으로, 현장 실무를 뛰는 자리."},
+    {name:"경사", tag:"현장 지휘 중견", age:[27,34], hook:"괴도 나이트 담당",
+     desc:"현장을 이끄는 실무 책임자. 순경들을 지휘하는 중견."},
+    {name:"경위", tag:"사건 전담 수사관", age:[30,38], hook:"괴도 나이트 전담",
+     desc:"사건을 정식으로 지휘하는 수사관. 홈즈 소설 속 레스트레이드 급."},
+    {name:"경감", tag:"고위 지휘관", age:[36,46], hook:"괴도 나이트 수사 지휘",
+     desc:"여러 사건을 총괄하는 고위직. 그레이브즈 총경 바로 아래."}
+  ],
+  "2":[ // 자유 (hook=축약 계기)
+    {name:"사립탐정", age:[28,40], hook:"피해자 의뢰로 개입",
+     desc:"야드 밖에서 독립적으로 사건을 파는 민간 조사자."},
+    {name:"신문기자", age:[24,34], hook:"예고장 취재로 개입",
+     desc:"예고장과 소문을 쫓는 취재로 사건에 접근한다."},
+    {name:"신문 사진사", age:[23,32], hook:"현장 촬영 중 목격",
+     desc:"현장에 가장 먼저 뛰어드는 기록자. 카메라가 무기."},
+    {name:"고미술품 감정 보조", age:[24,33], hook:"거래 기록서 이상 포착",
+     desc:"유물의 출처·거래 기록으로 사건에 접근한다."},
+    {name:"법률사무소 조사원", age:[26,36], hook:"소유권 분쟁 조사 중",
+     desc:"소유권 분쟁·법률 기록을 좇는 조사자."},
+    {name:"보험 조사원", age:[27,38], hook:"유물 보험 도난 조사",
+     desc:"고액 보험이 걸린 유물의 도난을 파고든다."},
+    {name:"사교계 인사", age:[24,36], hook:"예고장 소문 추적",
+     desc:"귀족과 하인 사이 정보망을 가진 인물."},
+    {name:"__custom__", label:"기타 · 직접 입력", age:[24,40], hook:"",
+     desc:"목록에 없는 직업을 직접 적습니다. (예: 골동품상, 의사, 배우…)"}
+  ]
+};
+
+const GRAVES = {
+  "1":["직속 상관","윗선의 연줄","사건을 맡긴 상관","특별한 관계 없음"],
+  "2":["수사 중 마주친 총경","개인적 연줄","사건을 맡긴 의뢰인","특별한 관계 없음"]
+};
+const ARTHUR = ["초면","같은 야드의 동료","예전부터 아는 사이","아직 모르는 사이"];
+
+const NAMES = {
+  female:{first:["세라","엘리자","마거릿","이디스","클라라","로즈","애그니스","헬렌","도로시","릴리언","에밀리","조지아나"]},
+  male:{first:["에드먼드","토머스","헨리","월터","조지","프랜시스","찰스","벤저민","앨버트","새뮤얼","올리버","시어도어"]},
+  last:["카터","하딩","콜린스","파울러","벤틀리","애벗","무어","프라이스","리드","셸던","로크","딘","배럿","놀런","하버","크로스"]
+};
+
+const TAB_LABELS = ["표지","시작","신원","직업","스타일","관계","인물","완성"];
+
+/* ===================================================================
+   상태 & 초기화
+=================================================================== */
+const state = {scn:"1", role:null, style:null, current:0, maxReached:0};
+const $ = s=>document.querySelector(s);
+const $$ = s=>[...document.querySelectorAll(s)];
+const rand = a=>a[Math.floor(Math.random()*a.length)];
+const randInt = (a,b)=>a+Math.floor(Math.random()*(b-a+1));
+
+document.querySelectorAll('.seal-mini').forEach(el=>el.innerHTML=sealSVG(56));
+$('#stamp').innerHTML=sealSVG(118);
+applyImages();
+buildTabs();
+buildStyleOpts();
+buildRoleCards();
+bindCustomRole();
+buildRelationSelects();
+bindScenario();
+updateTabUI();
+
+function applyImages(){
+  $$('.imgslot[data-img]').forEach(slot=>{
+    const url=IMG[slot.dataset.img];
+    if(url){ slot.innerHTML=`<img src="${url}" alt="">`; }
+  });
+}
+
+/* ---------- 탭 ---------- */
+function buildTabs(){
+  const row=$('#tabrow');
+  row.innerHTML=TAB_LABELS.map((lb,i)=>
+    `<button class="tab" data-goto="${i}" ${i===0?'aria-current="true"':''}>
+       <span class="n">${String(i).padStart(2,'0')}</span>${lb}</button>`).join('');
+  row.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click',()=>{const g=+t.dataset.goto; if(g<=state.maxReached) goStep(g);});
+  });
+}
+function updateTabUI(){
+  $$('#tabrow .tab').forEach((t,i)=>{
+    t.setAttribute('aria-current', i===state.current?'true':'false');
+    t.classList.toggle('done', i<state.current);
+    t.disabled = i>state.maxReached;
+  });
+  $('#progressBar').style.width = (state.current/(TAB_LABELS.length-1)*100)+'%';
+  const active=$('#tabrow .tab[aria-current="true"]');
+  if(active) active.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+}
+
+/* ---------- 스타일 옵션 ---------- */
+function buildStyleOpts(){
+  $('#styleOpts').innerHTML=STYLES.map(s=>
+    `<label class="opt" data-style="${s.id}">
+       <input type="radio" name="style" value="${s.id}"><span class="mark"></span>
+       <div class="k">${s.k}</div><div class="t">${s.t}</div><div class="d">${s.d}</div>
+     </label>`).join('');
+  $$('#styleOpts .opt').forEach(o=>o.addEventListener('click',()=>selectStyle(o.dataset.style)));
+}
+function selectStyle(id){
+  state.style=id;
+  $$('#styleOpts .opt').forEach(o=>o.classList.toggle('checked',o.dataset.style===id));
+  const s=STYLES.find(x=>x.id===id);
+  if(s && !$('#f_personality').value.trim()) $('#f_personality').value=s.pers;
+}
+
+/* ---------- 직업 카드 ---------- */
+function buildRoleCards(){
+  const list=ROLES[state.scn];
+  const isYard=state.scn==="1";
+  $('#roleCards').innerHTML=list.map(r=>{
+    const label=r.label||r.name;
+    const kick=isYard?(r.tag||""):"";
+    return `<label class="opt role-opt" data-role="${r.name}">
+      <input type="radio" name="role" value="${r.name}"><span class="mark"></span>
+      ${kick?`<div class="k">${kick}</div>`:``}
+      <div class="t">${label}</div><div class="d">${r.desc||""}</div>
+    </label>`;}).join('');
+  $$('#roleCards .role-opt').forEach(o=>o.addEventListener('click',()=>selectRole(o.dataset.role)));
+  $('#customBox').classList.toggle('hidden', state.role!=="__custom__");
+  $('#roleTitle').textContent=isYard?"직급":"직업 / 신분";
+  $('#roleSub').textContent=isYard?"야드 안에서 어떤 자리에 있을지 고르세요. 계급이 플레이에 그대로 반영됩니다.":"탐정·기자·상인… 사건에 얽힐 인물을 고르거나, ‘기타’로 직접 적으세요.";
+}
+function selectRole(name){
+  state.role=name;
+  $$('#roleCards .role-opt').forEach(o=>o.classList.toggle('checked',o.dataset.role===name));
+  const r=ROLES[state.scn].find(x=>x.name===name);
+  const isCustom=(name==="__custom__");
+  $('#customBox').classList.toggle('hidden',!isCustom);
+  if(r){
+    if(!$('#f_age').value.trim()) $('#f_age').value=randInt(r.age[0],r.age[1])+"세";
+    if(!isCustom) $('#f_hook').value=r.hook;
+    else if($('#f_customHook').value.trim()) $('#f_hook').value=$('#f_customHook').value.trim();
+  }
+}
+/* 커스텀 직업/계기 입력 → 상태 반영 */
+function bindCustomRole(){
+  $('#f_customRole')?.addEventListener('input',()=>{ if(state.current===7)renderFinal(); });
+  $('#f_customHook')?.addEventListener('input',()=>{
+    if(state.role==="__custom__") $('#f_hook').value=$('#f_customHook').value.trim();
+    if(state.current===7)renderFinal();
+  });
+}
+/* 실제 직업명 (커스텀이면 입력값) */
+function roleName(){
+  if(state.role==="__custom__") return $('#f_customRole').value.trim()||"자유 직업(미정)";
+  return state.role||(state.scn==="1"?"수사관":"관계자");
+}
+function roleTag(){
+  if(state.scn!=="1") return "";
+  const r=ROLES["1"].find(x=>x.name===state.role);
+  return r&&r.tag?r.tag:"";
+}
+
+/* ---------- 관계 셀렉트 ---------- */
+function buildRelationSelects(){
+  $('#f_graves').innerHTML=GRAVES[state.scn].map(g=>`<option>${g}</option>`).join('')+`<option>직접 입력</option>`;
+  $('#f_arthur').innerHTML=ARTHUR.map(a=>`<option>${a}</option>`).join('')+`<option>직접 입력</option>`;
+}
+
+/* ---------- 시작설정 ---------- */
+function bindScenario(){
+  $$('.opt[data-scn]').forEach(o=>{
+    o.addEventListener('click',()=>{
+      state.scn=o.dataset.scn;
+      $$('.opt[data-scn]').forEach(x=>x.classList.toggle('checked',x===o));
+      state.role=null;
+      buildRoleCards(); buildRelationSelects();
+    });
+  });
+  // 기본 선택 반영
+  $('.opt[data-scn="1"]').classList.add('checked');
+  $('.opt[data-scn="1"] input').checked=true;
+}
+
+/* ===================================================================
+   내비게이션
+=================================================================== */
+function startBuild(){ goStep(1); }
+
+function goStep(n){
+  n=Math.max(0,Math.min(TAB_LABELS.length-1,n));
+  state.current=n;
+  state.maxReached=Math.max(state.maxReached,n);
+  $$('.step').forEach(s=>s.classList.toggle('on', +s.dataset.step===n));
+  $('#navbar').style.display = n===0 ? 'none':'block';
+  const nb=$('#nextBtn');
+  if(n===TAB_LABELS.length-1){ nb.textContent="처음으로"; nb.onclick=()=>goStep(0); }
+  else { nb.textContent="다음"; nb.onclick=nextStep; }
+  if(n===TAB_LABELS.length-1){ renderFinal(); }
+  updateTabUI();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function nextStep(){
+  if(!validateStep(state.current)) return;
+  goStep(state.current+1);
+}
+function prevStep(){ goStep(state.current-1); }
+
+function validateStep(n){
+  if(n===3 && !state.role){ toast('직업을 하나 골라주세요.'); return false; }
+  if(n===4 && !state.style){ toast('수사 스타일을 하나 골라주세요.'); return false; }
+  return true;
+}
+function toast(msg){
+  const nb=$('#nextBtn'); const old=nb.textContent;
+  nb.textContent=msg; nb.disabled=true;
+  setTimeout(()=>{nb.textContent=old;nb.disabled=false;},1400);
+}
+
+/* ===================================================================
+   랜덤 롤
+=================================================================== */
+function randomRoll(){
+  const scn=rand(["1","2"]);
+  state.scn=scn;
+  $$('.opt[data-scn]').forEach(x=>x.classList.toggle('checked',x.dataset.scn===scn));
+  $(`.opt[data-scn="${scn}"] input`).checked=true;
+  buildRoleCards(); buildRelationSelects();
+
+  const g=rand(["female","male"]);
+  const gender = g==="female"?"여성":"남성";
+  const name = rand(NAMES[g].first)+" "+rand(NAMES.last);
+  const pool = ROLES[scn].filter(r=>r.name!=="__custom__");
+  const roleObj = rand(pool);
+  const st = rand(STYLES);
+
+  $('#f_customRole').value=""; $('#f_customHook').value="";
+  $('#f_name').value=name;
+  $('#f_gender').value=gender;
+  selectRole(roleObj.name);
+  $('#f_age').value=randInt(roleObj.age[0],roleObj.age[1])+"세";
+  selectStyle(st.id);
+  $('#f_personality').value=st.pers;
+  $('#f_hook').value=roleObj.hook;
+  $('#f_graves').value=rand(GRAVES[scn]);
+  $('#f_arthur').value=rand(ARTHUR);
+  $('#f_appearance').value="";
+  $('#f_extra').value="";
+
+  state.maxReached=TAB_LABELS.length-1;
+  goStep(TAB_LABELS.length-1);
+}
+
+/* ===================================================================
+   완성: 조서 + 유저노트
+=================================================================== */
+function v(id,dflt){ const t=$(id).value.trim(); return t||dflt||"미정"; }
+
+function renderFinal(){
+  const isYard=state.scn==="1";
+  $('#d_scn').textContent=isYard?"START 01 · Scotland Yard":"START 02 · Free Agent";
+  const name=$('#f_name').value.trim()||"신원 미상";
+  const st=STYLES.find(x=>x.id===state.style);
+  const role=roleName();
+  const tag=roleTag();
+  $('#d_name').textContent=name;
+  $('#d_role').textContent=`${role}${st?` · ${st.t}`:""}`;
+
+  const rows=[
+    ["성별", $('#f_gender').value||"미정"],
+    ["나이", v('#f_age')],
+    [isYard?"직급":"직업", role + (tag?` (${tag})`:"")],
+    ["스타일", st?`${st.t} · ${st.spec}`:"미정"],
+    ["계기", v('#f_hook')],
+    ["그레이브즈 총경", $('#f_graves').value||"미정"],
+    ["아서 순경", $('#f_arthur').value||"미정"]
+  ];
+  const ap=$('#f_appearance').value.trim(); if(ap) rows.push(["외형",ap]);
+  const pe=$('#f_personality').value.trim(); if(pe) rows.push(["성격",pe]);
+  const ex=$('#f_extra').value.trim(); if(ex) rows.push(["기타",ex]);
+  $('#d_summary').innerHTML=rows.map(([k,val])=>`<dt>${k}</dt><dd>${escapeHTML(val)}</dd>`).join('');
+
+  // 봉인 애니메이션
+  const stamp=$('#stamp'); stamp.classList.remove('on'); void stamp.offsetWidth;
+  setTimeout(()=>stamp.classList.add('on'),120);
+
+  regenNote();
+}
+
+function escapeHTML(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+/* --- 유저노트 생성 (라벨 없는 슬래시 축약형: 토큰 절약 + 파싱 용이) --- */
+function makeNote(){
+  const isYard=state.scn==="1";
+  const st=STYLES.find(x=>x.id===state.style);
+  const name=$('#f_name').value.trim();
+  const gender=$('#f_gender').value.trim();
+  let age=$('#f_age').value.trim(); if(age && !/세$/.test(age)) age+="세";
+  const role=roleName();
+  const pers=($('#f_personality').value.trim()||(st?st.pers:"")).replace(/[.。]$/,'');
+  const graves=$('#f_graves').value.trim();
+  const arthur=$('#f_arthur').value.trim();
+  const hook=$('#f_hook').value.trim().replace(/[.。]$/,'');
+  const appearance=$('#f_appearance').value.trim();
+  const extra=$('#f_extra').value.trim();
+
+  const lines=[];
+  // 1) 이름/나이/성별
+  const idBits=[name||"미정"];
+  if(age) idBits.push(age);
+  if(gender && gender!=="직접 설정") idBits.push(gender);
+  lines.push(idBits.join("/"));
+
+  // 2) 직업/계기
+  const roleDisp = isYard ? `야드 ${role}` : role;
+  lines.push(hook ? `${roleDisp}/${hook}` : roleDisp);
+
+  // 3) 스타일
+  if(st) lines.push(`${st.t}(${st.spec})`);
+
+  // 4) 성격
+  if(pers) lines.push(pers);
+
+  // 5) 외형 (있을 때만)
+  if(appearance) lines.push(appearance);
+
+  // 6) 관계 (의미 있는 값만)
+  const rel=[];
+  if(graves && graves!=="특별한 관계 없음" && graves!=="직접 입력") rel.push(`그레이브즈=${graves}`);
+  if(arthur && arthur!=="아직 모르는 사이" && arthur!=="직접 입력") rel.push(`아서=${arthur}`);
+  if(rel.length) lines.push(rel.join("/"));
+
+  // 7) 기타 (있을 때만)
+  if(extra) lines.push(extra);
+
+  return lines.join("\n");
+}
+function len(s){return [...s].length;}
+/* 받침에 따른 로/으로 조사 */
+function ro(w){
+  if(!w) return "로";
+  const c=w[w.length-1].charCodeAt(0);
+  if(c<0xAC00||c>0xD7A3) return "으로";
+  const jong=(c-0xAC00)%28;
+  return (jong===0||jong===8)?"로":"으로"; // 받침없음 or ㄹ → 로
+}
+
+function regenNote(){
+  $('#noteText').value=makeNote();
+  updateCounter();
+}
+$('#noteText').addEventListener('input',updateCounter);
+function updateCounter(){
+  const n=len($('#noteText').value);
+  const c=$('#counter');
+  c.className="counter"+(n>320?" warn":"");
+  c.innerHTML=`${n}자`;
+}
+
+async function copyNote(){
+  const text=$('#noteText').value;
+  try{ await navigator.clipboard.writeText(text); }
+  catch(e){ const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove(); }
+  const c=$('#copied'); c.classList.add('on'); setTimeout(()=>c.classList.remove('on'),1500);
+}
+
+/* 필드 변경 시 완성 화면이면 실시간 반영 */
+["f_name","f_gender","f_age","f_hook","f_graves","f_arthur","f_appearance","f_personality","f_extra"]
+.forEach(id=>{const el=document.getElementById(id); el&&el.addEventListener('input',()=>{
+  if(state.current===TAB_LABELS.length-1) renderFinal();
+});});
+</script>
+</body>
+</html>
