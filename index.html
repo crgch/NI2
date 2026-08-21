@@ -97,10 +97,21 @@ h2{font-family:"Noto Serif KR",serif;font-weight:700;margin:.2rem 0 .35rem;font-
 .card + .card{margin-top:14px}
 
 /* hero (intro) */
-.hero{position:relative;overflow:hidden;padding:26px 22px 24px}
-.hero .seal-mini{position:absolute;top:16px;right:16px;width:56px;height:56px;opacity:.9}
-.blurb{color:#cbc4b5;margin:14px 0 0;font-size:.96rem;max-width:52ch}
-.cta{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.hero{position:relative;overflow:hidden;padding:0}
+.hero-body{padding:20px 22px 24px}
+.cover-visual{position:relative}
+.cover-img{aspect-ratio:1216/832;border:0;border-radius:0}
+.cover-img img{filter:saturate(1.06) contrast(1.02)}
+.cover-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:20px 22px;background:linear-gradient(0deg,rgba(9,11,15,.96) 2%,rgba(9,11,15,.5) 34%,rgba(9,11,15,.05) 66%,transparent)}
+.cover-overlay .seal-mini{position:absolute;top:16px;right:16px;width:52px;height:52px;opacity:.95;
+  filter:drop-shadow(0 3px 8px rgba(0,0,0,.5))}
+.cover-overlay h1{margin:.15rem 0 .12rem;text-shadow:0 2px 20px rgba(0,0,0,.75)}
+.cover-overlay .eyebrow{text-shadow:0 1px 10px rgba(0,0,0,.7)}
+.cover-sub{color:var(--gold-lit);font-family:"Cormorant Garamond",serif;font-style:italic;
+  letter-spacing:.12em;font-size:.98rem;text-shadow:0 1px 10px rgba(0,0,0,.7)}
+.blurb{color:#cbc4b5;margin:0;font-size:.96rem;max-width:52ch}
+.cta{display:flex;flex-direction:column;gap:10px;margin-top:18px}
 
 /* image slot */
 .imgslot{position:relative;width:100%;border:1px solid var(--line2);border-radius:14px;overflow:hidden;
@@ -200,6 +211,16 @@ textarea{min-height:78px;resize:vertical;line-height:1.6}
 .dossier .filehead .rt{font-family:"Cormorant Garamond",serif;color:#6f5636;font-size:.8rem;text-align:right}
 .dossier h3{font-family:"Noto Serif KR",serif;margin:2px 0 2px;font-size:1.35rem;color:#2a2216;position:relative}
 .dossier .role-line{color:#5f4b2e;font-size:.9rem;position:relative}
+.dhead-row{display:flex;gap:14px;align-items:flex-start;position:relative;margin-bottom:4px}
+.dhead-text{flex:1;min-width:0;padding-top:2px}
+.dphoto{flex:0 0 auto;width:86px;aspect-ratio:3/4;border-radius:3px;overflow:hidden;color:#9a7c4a;
+  background:#d7c8aa;border:3px solid #fbf4e3;box-shadow:0 3px 10px rgba(60,45,25,.32);
+  transform:rotate(-1.6deg);display:flex;align-items:center;justify-content:center}
+.dphoto img{width:100%;height:100%;object-fit:cover;display:block}
+.dphoto .ph{padding:6px;gap:5px}
+.dphoto .ph svg{width:20px;height:20px;opacity:.7}
+.dphoto .ph .cap{font-size:.58rem;letter-spacing:0;color:#9a7c4a;line-height:1.2}
+.dphoto .ph .sub{display:none}
 .dsummary{position:relative;margin:14px 0 4px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
 .dsummary dt{color:#8a6d3f;font-weight:700}
 .dsummary dd{margin:0;color:#372c1c}
@@ -245,19 +266,23 @@ textarea{min-height:78px;resize:vertical;line-height:1.6}
   <!-- STEP 0 · 표지 -->
   <section class="step on" data-step="0">
     <div class="card hero">
-      <div class="seal-mini" aria-hidden="true"><!--SEAL--></div>
-      <div class="eyebrow">The Shadows of the Fog City</div>
-      <h1>플레이어 조서</h1>
-      <div class="imgslot" data-img="hero" style="margin-top:16px">
-        <div class="ph"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg><span class="cap">Fog · Gaslight · London</span><span class="sub">배경 일러스트 자리</span></div>
-        <span class="tag">배경</span>
+      <div class="cover-visual">
+        <div class="imgslot cover-img" id="coverImg" data-tag=""></div>
+        <div class="cover-overlay">
+          <div class="seal-mini" aria-hidden="true"><!--SEAL--></div>
+          <div class="eyebrow">The Shadows of the Fog City</div>
+          <h1>안개 도시의<br>그림자</h1>
+          <div class="cover-sub">플레이어 조서 작성</div>
+        </div>
       </div>
-      <p class="blurb">1890년대 런던. 안개와 가스등 사이로 은발의 괴도 <b>나이트</b>가 애시크로프트 유물을 훔치고, 빈 진열대에 <b style="color:var(--wine-lit)">붉은 실링</b>을 남긴다. 스코틀랜드 야드가 그를 쫓는 밤 — 당신은 어떤 인물로 이 사건에 발을 들이는가.</p>
-      <div class="cta">
-        <button class="btn btn-primary" onclick="startBuild()">조서 작성 시작</button>
-        <button class="btn btn-gold" onclick="randomRoll()">🎲 랜덤으로 배정</button>
+      <div class="hero-body">
+        <p class="blurb">1890년대 런던. 안개와 가스등 사이로 은발의 괴도 <b>나이트</b>가 애시크로프트 유물을 훔치고, 빈 진열대에 <b style="color:var(--wine-lit)">붉은 실링</b>을 남긴다. 스코틀랜드 야드가 그를 쫓는 밤 — 당신은 어떤 인물로 이 사건에 발을 들이는가.</p>
+        <div class="cta">
+          <button class="btn btn-primary" onclick="startBuild()">조서 작성 시작</button>
+          <button class="btn btn-gold" onclick="randomRoll()">🎲 랜덤으로 배정</button>
+        </div>
+        <div class="mini" style="margin:14px 0 0">처음이라면 <b>랜덤 배정</b>으로 바로 시작한 뒤, 마음에 드는 항목만 고쳐도 됩니다.</div>
       </div>
-      <div class="mini" style="margin:14px 0 0">처음이라면 <b>랜덤 배정</b>으로 바로 시작한 뒤, 마음에 드는 항목만 고쳐도 됩니다.</div>
     </div>
   </section>
 
@@ -305,10 +330,7 @@ textarea{min-height:78px;resize:vertical;line-height:1.6}
     <div class="eyebrow">Case File · 03</div>
     <h2 id="roleTitle">직업</h2>
     <p class="mini" id="roleSub">사건에 어떤 신분으로 서 있을지 고르세요.</p>
-    <div class="imgslot portrait" data-img="portrait" style="margin:0 auto 14px">
-      <div class="ph"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg><span class="cap">Your Character</span><span class="sub">캐릭터 일러스트 자리</span></div>
-      <span class="tag">인물</span>
-    </div>
+    <div class="imgslot portrait" id="rolePortrait" data-tag="인물" style="margin:0 auto 14px"></div>
     <div class="opts" id="roleCards" role="radiogroup" aria-label="직업"></div>
     <div class="card hidden" id="customBox" style="margin-top:12px">
       <div class="field"><label class="lbl" for="f_customRole">직업 / 신분 직접 입력</label>
@@ -369,8 +391,13 @@ textarea{min-height:78px;resize:vertical;line-height:1.6}
         <div class="lt">Scotland Yard · Case Dossier</div>
         <div class="rt" id="d_scn">START 01</div>
       </div>
-      <h3 id="d_name">—</h3>
-      <div class="role-line" id="d_role">—</div>
+      <div class="dhead-row">
+        <div class="dphoto" id="dossierPortrait"></div>
+        <div class="dhead-text">
+          <h3 id="d_name">—</h3>
+          <div class="role-line" id="d_role">—</div>
+        </div>
+      </div>
       <dl class="dsummary" id="d_summary"></dl>
       <div class="stamp" id="stamp" aria-hidden="true"><!--SEAL_BIG--></div>
     </div>
@@ -402,14 +429,56 @@ textarea{min-height:78px;resize:vertical;line-height:1.6}
 
 <script>
 /* ===================================================================
-   이미지 슬롯 설정 — 제작자용
-   아래 URL만 채우면 해당 자리에 이미지가 자동으로 들어갑니다. (비우면 플레이스홀더)
-   예) hero: "https://raw.githubusercontent.com/crgch/.../london.png"
+   이미지 설정 — 제작자용 (모든 이미지는 이 HTML과 같은 폴더에 두세요)
+   · 표지: IMG.hero
+   · 직업 초상: 파일명 규칙 = "{직업베이스}_{남|여}.png"  (ROLES의 img 값 참고)
+     성별 선택(신원 단계)에 따라 _남 / _여 파일이 자동 선택됩니다.
+   · 파일이 없으면 플레이스홀더에 '필요한 파일명'이 표시됩니다.
+   확장자를 png가 아닌 걸로 쓰려면 IMG.ext 를 바꾸세요 (예: ".webp").
 =================================================================== */
 const IMG = {
-  hero: "",        // 표지 배경 (안개 낀 런던 / 괴도 나이트 실루엣)
-  portrait: ""     // 직업 단계 캐릭터 초상 자리
+  hero: "빅벤배경.png",   // 표지 (Big Ben)
+  ext: ".png"             // 직업 초상 확장자
 };
+
+/* 성별 → 파일 접미사 */
+function genderKey(){ return $('#f_gender').value.trim()==="여성" ? "여" : "남"; }
+/* 현재 선택 직업의 초상 파일명 (없으면 "") */
+function portraitFile(){
+  const r=ROLES[state.scn]?.find(x=>x.name===state.role);
+  if(!r||!r.img) return "";
+  return `${r.img}_${genderKey()}${IMG.ext}`;
+}
+/* 플레이스홀더 HTML */
+function phHTML(cap,sub,person){
+  const icon = person
+    ? `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>`
+    : `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg>`;
+  return `<div class="ph">${icon}<span class="cap">${cap||""}</span>${sub?`<span class="sub">${sub}</span>`:""}</div>`;
+}
+/* 슬롯에 이미지(로드실패 시 플레이스홀더) 렌더 */
+function renderSlot(slot, url, cap, sub, person){
+  if(!slot) return;
+  const tag=slot.dataset.tag||"";
+  const tagH=tag?`<span class="tag">${tag}</span>`:"";
+  const ph=phHTML(cap,sub,person)+tagH;
+  if(url){
+    slot.innerHTML="";
+    const img=document.createElement('img');
+    img.alt=""; img.onerror=()=>{ slot.innerHTML=ph; };
+    img.src=url;
+    slot.appendChild(img);
+    if(tag) slot.insertAdjacentHTML('beforeend',tagH);
+  } else {
+    slot.innerHTML=ph;
+  }
+}
+/* 직업 단계 초상 갱신 */
+function updateRolePortrait(){
+  const f=portraitFile();
+  const label = state.role==="__custom__" ? "기타" : (state.role||"");
+  renderSlot($('#rolePortrait'), f, f?label:"Your Character", f?`${f} 자리`:"캐릭터 이미지 자리", true);
+}
 
 /* ---------- 밀랍 붉은 실링 SVG ---------- */
 function sealSVG(size){
@@ -448,32 +517,32 @@ const STYLES = [
 ];
 
 const ROLES = {
-  "1":[ // 야드 (tag=선택UI 계급설명, hook=축약 계기)
-    {name:"순경", tag:"말단 신입 계급", age:[24,30], hook:"괴도 나이트 담당",
+  "1":[ // 야드 (img=초상 파일 베이스, 계급 공통)
+    {name:"순경", img:"야드수사관", tag:"말단 신입 계급", age:[24,30], hook:"괴도 나이트 담당",
      desc:"야드 최하급. 아서와 같은 계급으로, 현장 실무를 뛰는 자리."},
-    {name:"경사", tag:"현장 지휘 중견", age:[27,34], hook:"괴도 나이트 담당",
+    {name:"경사", img:"야드수사관", tag:"현장 지휘 중견", age:[27,34], hook:"괴도 나이트 담당",
      desc:"현장을 이끄는 실무 책임자. 순경들을 지휘하는 중견."},
-    {name:"경위", tag:"사건 전담 수사관", age:[30,38], hook:"괴도 나이트 전담",
+    {name:"경위", img:"야드수사관", tag:"사건 전담 수사관", age:[30,38], hook:"괴도 나이트 전담",
      desc:"사건을 정식으로 지휘하는 수사관. 홈즈 소설 속 레스트레이드 급."},
-    {name:"경감", tag:"고위 지휘관", age:[36,46], hook:"괴도 나이트 수사 지휘",
+    {name:"경감", img:"야드수사관", tag:"고위 지휘관", age:[36,46], hook:"괴도 나이트 수사 지휘",
      desc:"여러 사건을 총괄하는 고위직. 그레이브즈 총경 바로 아래."}
   ],
-  "2":[ // 자유 (hook=축약 계기)
-    {name:"사립탐정", age:[28,40], hook:"피해자 의뢰로 개입",
+  "2":[ // 자유 (img=초상 파일 베이스)
+    {name:"사립탐정", img:"사립탐정", age:[28,40], hook:"피해자 의뢰로 개입",
      desc:"야드 밖에서 독립적으로 사건을 파는 민간 조사자."},
-    {name:"신문기자", age:[24,34], hook:"예고장 취재로 개입",
+    {name:"신문기자", img:"신문기자", age:[24,34], hook:"예고장 취재로 개입",
      desc:"예고장과 소문을 쫓는 취재로 사건에 접근한다."},
-    {name:"신문 사진사", age:[23,32], hook:"현장 촬영 중 목격",
+    {name:"신문 사진사", img:"사진사", age:[23,32], hook:"현장 촬영 중 목격",
      desc:"현장에 가장 먼저 뛰어드는 기록자. 카메라가 무기."},
-    {name:"고미술품 감정 보조", age:[24,33], hook:"거래 기록서 이상 포착",
+    {name:"고미술품 감정 보조", img:"감정사", age:[24,33], hook:"거래 기록서 이상 포착",
      desc:"유물의 출처·거래 기록으로 사건에 접근한다."},
-    {name:"법률사무소 조사원", age:[26,36], hook:"소유권 분쟁 조사 중",
+    {name:"법률사무소 조사원", img:"법률조사원", age:[26,36], hook:"소유권 분쟁 조사 중",
      desc:"소유권 분쟁·법률 기록을 좇는 조사자."},
-    {name:"보험 조사원", age:[27,38], hook:"유물 보험 도난 조사",
+    {name:"보험 조사원", img:"보험조사원", age:[27,38], hook:"유물 보험 도난 조사",
      desc:"고액 보험이 걸린 유물의 도난을 파고든다."},
-    {name:"사교계 인사", age:[24,36], hook:"예고장 소문 추적",
+    {name:"사교계 인사", img:"사교계", age:[24,36], hook:"예고장 소문 추적",
      desc:"귀족과 하인 사이 정보망을 가진 인물."},
-    {name:"__custom__", label:"기타 · 직접 입력", age:[24,40], hook:"",
+    {name:"__custom__", img:"기타", label:"기타 · 직접 입력", age:[24,40], hook:"",
      desc:"목록에 없는 직업을 직접 적습니다. (예: 골동품상, 의사, 배우…)"}
   ]
 };
@@ -510,13 +579,11 @@ buildRoleCards();
 bindCustomRole();
 buildRelationSelects();
 bindScenario();
+updateRolePortrait();
 updateTabUI();
 
 function applyImages(){
-  $$('.imgslot[data-img]').forEach(slot=>{
-    const url=IMG[slot.dataset.img];
-    if(url){ slot.innerHTML=`<img src="${url}" alt="">`; }
-  });
+  renderSlot($('#coverImg'), IMG.hero, "Big Ben · London", "빅벤배경.png 자리", false);
 }
 
 /* ---------- 탭 ---------- */
@@ -584,6 +651,7 @@ function selectRole(name){
     if(!isCustom) $('#f_hook').value=r.hook;
     else if($('#f_customHook').value.trim()) $('#f_hook').value=$('#f_customHook').value.trim();
   }
+  updateRolePortrait();
 }
 /* 커스텀 직업/계기 입력 → 상태 반영 */
 function bindCustomRole(){
@@ -639,6 +707,7 @@ function goStep(n){
   const nb=$('#nextBtn');
   if(n===TAB_LABELS.length-1){ nb.textContent="처음으로"; nb.onclick=()=>goStep(0); }
   else { nb.textContent="다음"; nb.onclick=nextStep; }
+  if(n===3){ updateRolePortrait(); }
   if(n===TAB_LABELS.length-1){ renderFinal(); }
   updateTabUI();
   window.scrollTo({top:0,behavior:'smooth'});
@@ -708,6 +777,10 @@ function renderFinal(){
   const tag=roleTag();
   $('#d_name').textContent=name;
   $('#d_role').textContent=`${role}${st?` · ${st.t}`:""}`;
+
+  // 조서 초상 (직업×성별)
+  const pf=portraitFile();
+  renderSlot($('#dossierPortrait'), pf, "인물", pf?`${pf} 자리`:"사진 자리", true);
 
   const rows=[
     ["성별", $('#f_gender').value||"미정"],
@@ -812,6 +885,8 @@ async function copyNote(){
 .forEach(id=>{const el=document.getElementById(id); el&&el.addEventListener('input',()=>{
   if(state.current===TAB_LABELS.length-1) renderFinal();
 });});
+/* 성별 바꾸면 직업 초상(남/여) 갱신 */
+$('#f_gender').addEventListener('change',updateRolePortrait);
 </script>
 </body>
 </html>
