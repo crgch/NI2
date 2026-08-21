@@ -112,6 +112,10 @@ h2{font-family:"Noto Serif KR",serif;font-weight:700;margin:.2rem 0 .35rem;font-
   letter-spacing:.12em;font-size:.98rem;text-shadow:0 1px 10px rgba(0,0,0,.7)}
 .blurb{color:#cbc4b5;margin:0;font-size:.96rem;max-width:52ch}
 .cta{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.roll{border:1px solid var(--line2);border-radius:12px;padding:10px 12px 12px;background:rgba(198,161,92,.05)}
+.roll-cap{display:block;font-size:.84rem;color:var(--gold-lit);letter-spacing:.02em;margin:0 2px 8px}
+.roll-btns{display:flex;gap:10px}
+.roll-btns .btn{flex:1;padding:12px}
 
 /* image slot */
 .imgslot{position:relative;width:100%;border:1px solid var(--line2);border-radius:14px;overflow:hidden;
@@ -213,14 +217,25 @@ textarea{min-height:78px;resize:vertical;line-height:1.6}
 .dossier .role-line{color:#5f4b2e;font-size:.9rem;position:relative}
 .dhead-row{display:flex;gap:14px;align-items:flex-start;position:relative;margin-bottom:4px}
 .dhead-text{flex:1;min-width:0;padding-top:2px}
-.dphoto{flex:0 0 auto;width:86px;aspect-ratio:3/4;border-radius:3px;overflow:hidden;color:#9a7c4a;
-  background:#d7c8aa;border:3px solid #fbf4e3;box-shadow:0 3px 10px rgba(60,45,25,.32);
+.dphoto{flex:0 0 auto;width:118px;aspect-ratio:3/4;border-radius:3px;overflow:hidden;color:#9a7c4a;
+  background:#d7c8aa;border:4px solid #fbf4e3;box-shadow:0 4px 14px rgba(60,45,25,.34);
   transform:rotate(-1.6deg);display:flex;align-items:center;justify-content:center}
 .dphoto img{width:100%;height:100%;object-fit:cover;display:block}
-.dphoto .ph{padding:6px;gap:5px}
-.dphoto .ph svg{width:20px;height:20px;opacity:.7}
-.dphoto .ph .cap{font-size:.58rem;letter-spacing:0;color:#9a7c4a;line-height:1.2}
+.dphoto .ph{padding:8px;gap:6px}
+.dphoto .ph svg{width:24px;height:24px;opacity:.7}
+.dphoto .ph .cap{font-size:.64rem;letter-spacing:0;color:#9a7c4a;line-height:1.2}
 .dphoto .ph .sub{display:none}
+@media(min-width:480px){.dphoto{width:140px}}
+
+/* 시작설정 안내 배너 */
+.starthint{margin-top:14px;border:1px solid rgba(198,161,92,.4);border-radius:12px;
+  padding:12px 14px;background:linear-gradient(180deg,rgba(198,161,92,.09),rgba(198,161,92,.04));
+  color:#e0d7c4;font-size:.9rem;line-height:1.5;display:flex;gap:9px;align-items:flex-start}
+.starthint b{color:var(--gold-lit)}
+.starthint .ico{flex:0 0 auto;color:var(--gold);font-size:1rem;line-height:1.4}
+.storylink{display:block;text-align:center;text-decoration:none;margin-top:14px;
+  background:linear-gradient(135deg,var(--gold-lit),var(--gold));color:#2a2113}
+.storylink:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(198,161,92,.28)}
 .dsummary{position:relative;margin:14px 0 4px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
 .dsummary dt{color:#8a6d3f;font-weight:700}
 .dsummary dd{margin:0;color:#372c1c}
@@ -279,7 +294,13 @@ textarea{min-height:78px;resize:vertical;line-height:1.6}
         <p class="blurb">1890년대 런던. 안개와 가스등 사이로 은발의 괴도 <b>나이트</b>가 애시크로프트 유물을 훔치고, 빈 진열대에 <b style="color:var(--wine-lit)">붉은 실링</b>을 남긴다. 스코틀랜드 야드가 그를 쫓는 밤 — 당신은 어떤 인물로 이 사건에 발을 들이는가.</p>
         <div class="cta">
           <button class="btn btn-primary" onclick="startBuild()">조서 작성 시작</button>
-          <button class="btn btn-gold" onclick="randomRoll()">🎲 랜덤으로 배정</button>
+          <div class="roll">
+            <span class="roll-cap">🎲 랜덤으로 시작</span>
+            <div class="roll-btns">
+              <button class="btn btn-gold" onclick="randomRoll('여성')">여성</button>
+              <button class="btn btn-gold" onclick="randomRoll('남성')">남성</button>
+            </div>
+          </div>
         </div>
         <div class="mini" style="margin:14px 0 0">처음이라면 <b>랜덤 배정</b>으로 바로 시작한 뒤, 마음에 드는 항목만 고쳐도 됩니다.</div>
       </div>
@@ -402,6 +423,8 @@ textarea{min-height:78px;resize:vertical;line-height:1.6}
       <div class="stamp" id="stamp" aria-hidden="true"><!--SEAL_BIG--></div>
     </div>
 
+    <div class="starthint" id="startHint"></div>
+
     <div class="card noteout" style="margin-top:14px">
       <div class="nhead">
         <span class="lab">User Note</span>
@@ -414,6 +437,10 @@ textarea{min-height:78px;resize:vertical;line-height:1.6}
       </div>
       <div class="copied" id="copied">복사되었습니다</div>
     </div>
+
+    <a class="btn btn-primary storylink" id="storyLink" href="#" target="_blank" rel="noopener">
+      유저노트 복사했다면 → 스토리 시작하기
+    </a>
 
     <div class="foot">The night belongs to the one who leaves a red seal.</div>
   </section>
@@ -440,6 +467,9 @@ const IMG = {
   hero: "빅벤배경.png",   // 표지 (Big Ben)
   ext: ".png"             // 직업 초상 확장자
 };
+
+/* 스토리 링크 (크랙) — 완성 화면 '스토리 시작하기' 버튼 */
+const STORY_URL = "https://share.crack.wrtn.ai/lourm0h";
 
 /* 성별 → 파일 접미사 */
 function genderKey(){ return $('#f_gender').value.trim()==="여성" ? "여" : "남"; }
@@ -584,6 +614,7 @@ updateTabUI();
 
 function applyImages(){
   renderSlot($('#coverImg'), IMG.hero, "Big Ben · London", "빅벤배경.png 자리", false);
+  const sl=$('#storyLink'); if(sl && STORY_URL) sl.href=STORY_URL;
 }
 
 /* ---------- 탭 ---------- */
@@ -732,15 +763,15 @@ function toast(msg){
 /* ===================================================================
    랜덤 롤
 =================================================================== */
-function randomRoll(){
+function randomRoll(forceGender){
   const scn=rand(["1","2"]);
   state.scn=scn;
   $$('.opt[data-scn]').forEach(x=>x.classList.toggle('checked',x.dataset.scn===scn));
   $(`.opt[data-scn="${scn}"] input`).checked=true;
   buildRoleCards(); buildRelationSelects();
 
-  const g=rand(["female","male"]);
-  const gender = g==="female"?"여성":"남성";
+  const gender = forceGender || rand(["여성","남성"]);
+  const g = gender==="여성"?"female":"male";
   const name = rand(NAMES[g].first)+" "+rand(NAMES.last);
   const pool = ROLES[scn].filter(r=>r.name!=="__custom__");
   const roleObj = rand(pool);
@@ -800,6 +831,11 @@ function renderFinal(){
   const stamp=$('#stamp'); stamp.classList.remove('on'); void stamp.offsetWidth;
   setTimeout(()=>stamp.classList.add('on'),120);
 
+  // 시작설정 안내
+  $('#startHint').innerHTML = isYard
+    ? `<span class="ico">◈</span><span>이 인물은 <b>스코틀랜드 야드 수사관</b>입니다. 스토리에서 <b>시작설정 1</b>을 선택해 플레이하세요.</span>`
+    : `<span class="ico">◈</span><span>이 인물은 수사관이 아닌 <b>자유 직업</b>입니다. 스토리에서 <b>시작설정 2</b>를 선택해 플레이하세요.</span>`;
+
   regenNote();
 }
 
@@ -848,6 +884,11 @@ function makeNote(){
 
   // 7) 기타 (있을 때만)
   if(extra) lines.push(extra);
+
+  // 8) 시작설정 안내 (스토리에서 어떤 시작설정으로 플레이할지)
+  lines.push(isYard
+    ? "※ 시작설정 1(스코틀랜드 야드 수사관)로 플레이"
+    : "※ 자유 직업 — 시작설정 2로 플레이");
 
   return lines.join("\n");
 }
