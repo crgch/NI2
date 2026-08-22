@@ -833,7 +833,7 @@ function renderFinal(){
 
   // 시작설정 안내
   $('#startHint').innerHTML = isYard
-    ? `<span class="ico">◈</span><span>이 인물은 <b>스코틀랜드 야드 수사관</b>입니다. 스토리에서 <b>시작설정 1</b>을 선택해 플레이하세요.</span>`
+    ? `<span class="ico">◈</span><span>이 인물은 <b>스코틀랜드 야드 수사관</b>입니다. <b>시작설정 1·2 모두</b> 플레이할 수 있습니다.</span>`
     : `<span class="ico">◈</span><span>이 인물은 수사관이 아닌 <b>자유 직업</b>입니다. 스토리에서 <b>시작설정 2</b>를 선택해 플레이하세요.</span>`;
 
   regenNote();
@@ -884,11 +884,6 @@ function makeNote(){
 
   // 7) 기타 (있을 때만)
   if(extra) lines.push(extra);
-
-  // 8) 시작설정 안내 (스토리에서 어떤 시작설정으로 플레이할지)
-  lines.push(isYard
-    ? "※ 시작설정 1(스코틀랜드 야드 수사관)로 플레이"
-    : "※ 자유 직업 — 시작설정 2로 플레이");
 
   return lines.join("\n");
 }
